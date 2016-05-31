@@ -2,8 +2,10 @@
 
 from flask.ext.script import Manager
 from flask.ext.migrate import Migrate, MigrateCommand
-from app import app, db
+from app import create_app
+from app.models import db
 
+app = create_app()
 migrate = Migrate(app, db)
 
 manager = Manager(app)

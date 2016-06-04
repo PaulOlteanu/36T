@@ -1,5 +1,4 @@
 from flask.ext.sqlalchemy import SQLAlchemy
-from random import randint
 db = SQLAlchemy()
 
 

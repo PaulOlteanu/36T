@@ -7,3 +7,5 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 IMAGE_FOLDER = os.path.join(basedir, "images")
 
 IMAGE_NAME_LENGTH = 7
+
+IMAGES_PER_PAGE = 20

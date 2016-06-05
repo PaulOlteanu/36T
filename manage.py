@@ -5,11 +5,11 @@ import os
 from flask_script import Manager
 from flask_script.commands import ShowUrls, Clean
 from flask_migrate import Migrate, MigrateCommand
-from threesixty import create_app
-from threesixty.models import db, Photo
+from app import create_app
+from app.models import db, Photo
 
 # Default to dev config because no one should use this in production anyway
-app = create_app('threesixty.settings.DevConfig')
+app = create_app('app.settings.DevConfig')
 migrate = Migrate(app, db)
 
 manager = Manager(app)

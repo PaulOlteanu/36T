@@ -1,7 +1,5 @@
 #!./venv/bin/python
 
-import os
-
 from flask_script import Manager
 from flask_script.commands import ShowUrls, Clean
 from flask_migrate import Migrate, MigrateCommand

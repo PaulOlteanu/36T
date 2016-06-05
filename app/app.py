@@ -174,7 +174,7 @@ def create_app():
         # While this could be moved to a constant, it is simpler to have it in the query as it's only used once, and using string concating is a bit of a hack when creating queries
         images = db.session.execute(
             "SELECT photo.id, photo.title, photo.path, photo.votes, photo.created_on FROM photo " +
-            "ORDER BY ROUND(CAST(LOG(GREATEST(ABS(votes), 1)) * SIGN(votes) + DATE_PART('epoch', created_on) / 45000.0 as NUMERIC), 7) DESC " +
+            "ORDER BY ROUND(CAST(LOG(GREATEST(ABS(photo.votes), 1)) * SIGN(photo.votes) + DATE_PART('epoch', photo.created_on) / 45000.0 as NUMERIC), 7) DESC " +
             "OFFSET " + str(app.config["IMAGES_PER_PAGE"] * (page - 1)) + " LIMIT " + str(app.config["IMAGES_PER_PAGE"])
         )
 

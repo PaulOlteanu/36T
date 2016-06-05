@@ -9,3 +9,6 @@ IMAGE_FOLDER = os.path.join(basedir, "images")
 IMAGE_NAME_LENGTH = 7
 
 IMAGES_PER_PAGE = 20
+
+# This should definitely be set in the instance/config.py file
+ADMIN_PASSWORD = "Password"

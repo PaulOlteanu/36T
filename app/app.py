@@ -53,7 +53,8 @@ def create_app():
                     "id": row.id,
                     "title": row.title,
                     "path": row.path,
-                    "votes": row.votes
+                    "votes": row.votes,
+                    "creation_date": row.created_on
                 })
 
             return jsonify({
@@ -112,6 +113,39 @@ def create_app():
                 "status": "Success"
             })
 
+    @app.route("/images/new")
+    def new():
+        page = 1
+
+        # Basic implementation of pagination
+        # Defaults to page 1 if the page value isn't specified
+        if ("page" in request.args.keys()):
+            try:
+                page = int(request.args["page"])
+            except ValueError:
+                return jsonify({
+                    "status": "Failure",
+                    "message": "Invalid page number"
+                })
+
+        images = Photo.query.order_by(Photo.created_on.desc()).offset(app.config["IMAGES_PER_PAGE"] * (page - 1)).limit(app.config["IMAGES_PER_PAGE"])
+
+        results = []
+
+        for row in images:
+            results.append({
+                "id": row.id,
+                "title": row.title,
+                "path": row.path,
+                "votes": row.votes,
+                "creation_date": row.created_on
+            })
+
+        return jsonify({
+            "status": "Success",
+            "data": results
+        })
+
     # Route to get all images sorted using reddit's hot algorithm
     @app.route("/images/hot")
     def hot():
@@ -134,9 +168,14 @@ def create_app():
 
         # Page has 1 subtracted from it because if not, it would be offset by IMAGES_PER_PAGE on the 1st page, and 2 * IMAGES_PER_PAGE on the 2nd one
         # The offset should actually be 0 for the first and IMAGES_PER_PAGE for the 2nd
+
+        # 45000 is a magic number in reddit's code too. It's the number of seconds in 12.5 hours
+        # The way the algorithm works requires an image to have 10 times as many points as one 12.5 hours newer to be ranked above it
+        # While this could be moved to a constant, it is simpler to have it in the query as it's only used once, and using string concating is a bit of a hack when creating queries
         images = db.session.execute(
-            "SELECT id, title, path, votes FROM photo ORDER BY LOG(ABS(votes) + 1) + (EXTRACT(EPOCH FROM created_on) / 300000) DESC OFFSET " +
-            str(app.config["IMAGES_PER_PAGE"] * (page - 1)) + " LIMIT 20"
+            "SELECT photo.id, photo.title, photo.path, photo.votes, photo.created_on FROM photo " +
+            "ORDER BY ROUND(CAST(LOG(GREATEST(ABS(votes), 1)) * SIGN(votes) + DATE_PART('epoch', created_on) / 45000.0 as NUMERIC), 7) DESC " +
+            "OFFSET " + str(app.config["IMAGES_PER_PAGE"] * (page - 1)) + " LIMIT " + str(app.config["IMAGES_PER_PAGE"])
         )
 
         results = []
@@ -148,7 +187,8 @@ def create_app():
                 "id": row.id,
                 "title": row.title,
                 "path": row.path,
-                "votes": row.votes
+                "votes": row.votes,
+                "creation_date": row.created_on
             })
 
         return jsonify({

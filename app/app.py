@@ -105,6 +105,7 @@ def create_app():
             image.close()
 
             # Create a database row for the image
+            # TODO: Remove the random votes number, and also the argument from the model constructor. This is only there for ease of development
             model = Photo(title=title, path=os.path.join(app.config["IMAGE_FOLDER"], secure_filename(new_filename)), votes=randint(0, 1000))
             db.session.add(model)
             db.session.commit()
@@ -194,6 +195,21 @@ def create_app():
         return jsonify({
             "status": "Success",
             "data": results
+        })
+
+    @app.errorhandler(404)
+    def not_found_error(error):
+        return jsonify({
+            "status": "Failure",
+            "message": "Invalid route"
+        })
+
+    @app.errorhandler(500)
+    def internal_error(error):
+        db.session.rollback()
+        return jsonify({
+            "status": "Failure",
+            "message": "Server error. Contact an admin if this problem persists"
         })
 
     return app

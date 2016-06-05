@@ -3,7 +3,7 @@
 
 import pytest
 
-from threesixty.models import db, Photo
+from app.models import db, Photo
 
 create_user = False
 

@@ -31,7 +31,7 @@ def create_app(object_name):
     An flask application factory, as explained here: http://flask.pocoo.org/docs/patterns/appfactories/
 
     Arguments:
-        object_name: the python path of the config object, e.g. threesixty.settings.ProdConfig
+        object_name: the python path of the config object, e.g. app.settings.ProdConfig
     """
 
     app = Flask(__name__)

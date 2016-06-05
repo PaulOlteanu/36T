@@ -1,12 +1,12 @@
 import pytest
 
-from threesixty import create_app
-from threesixty.models import db, Photo
+from app import create_app
+from app.models import db, Photo
 
 
 @pytest.fixture()
 def testapp(request):
-    app = create_app('threesixty.settings.TestConfig')
+    app = create_app('app.settings.TestConfig')
     client = app.test_client()
 
     db.app = app

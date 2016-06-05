@@ -16,4 +16,4 @@ clean:
 	./venv/bin/python manage.py clean
 
 test:
-	./venv/bin/py.test tests
+	./venv/bin/py.test tests --cov=app --cov-report term-missing

@@ -5,7 +5,7 @@ __author__ = 'Paul Olteanu'
 __email__ = 'p.a.olteanu@gmail.com'
 __version__ = '1.0'
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, make_response
 from werkzeug.utils import secure_filename
 
 from random import randint
@@ -211,17 +211,22 @@ def create_app(object_name):
 
     @app.errorhandler(404)
     def not_found_error(error):
-        return jsonify({
+        response = jsonify({
             "status": "Failure",
             "message": "Invalid route"
         })
 
+        return make_response((response, 404))
+
     @app.errorhandler(500)
     def internal_error(error):
         db.session.rollback()
-        return jsonify({
+
+        response = jsonify({
             "status": "Failure",
             "message": "Server error. Contact an admin if this problem persists"
         })
+
+        return make_response((response, 500))
 
     return app

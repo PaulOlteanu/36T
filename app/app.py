@@ -37,60 +37,83 @@ def create_app():
             "message": "Welcome to the API!"
         })
 
-    # Image uploading route
-    # The input must be form encoded data, consisting of an image, and a title
-    @app.route("/upload", methods=["POST"])
-    def upload():
+    # Images route. Allows users to get all images, or to upload an image
+    @app.route("/images", methods=["GET", "POST"])
+    def images():
 
-        # Make sure the file exists
-        # The "key" for it must be "file", otherwise it will not be accepted
-        if "file" not in request.files:
+        # GET route. Returns all images, in order of id, which is also in order of oldest -> newest
+        if request.method == "GET":
+
+            images = Photo.query.all()
+
+            results = []
+
+            for row in images:
+                results.append({
+                    "id": row.id,
+                    "title": row.title,
+                    "path": row.path,
+                    "votes": row.votes
+                })
+
             return jsonify({
-                "status": "Failure",
-                "message": "File missing"
+                "status": "Success",
+                "data": results
             })
 
-        upload = request.files["file"]
+        # POST route. Images are uploaded here
+        # The input must be form encoded data, consisting of an image, and a title
+        elif request.method == "POST":
 
-        # Make sure the file extension is acceptable
-        if upload.filename.split(".")[-1] not in ["png", "jpg", "bmp", "jpeg"]:
+            # Make sure the file exists
+            # The "key" for it must be "file", otherwise it will not be accepted
+            if "file" not in request.files:
+                return jsonify({
+                    "status": "Failure",
+                    "message": "File missing"
+                })
+
+            upload = request.files["file"]
+
+            # Make sure the file extension is acceptable
+            if upload.filename.split(".")[-1] not in ["png", "jpg", "bmp", "jpeg"]:
+                return jsonify({
+                    "status": "Failure",
+                    "message": "Invalid file extension"
+                })
+
+            # Make sure a title is present
+            if "title" not in request.form.keys():
+                return jsonify({
+                    "status": "Failure",
+                    "message": "Title missing"
+                })
+            else:
+                title = request.form["title"]
+
+            # Open image for compressing
+            image = Image.open(upload)
+
+            # File to save the image to. The filename is randomly generated from the generateFilname function
+            # Eventually this will have to check for a collision with an already existing filename
+            new_filename = secure_filename(generateFilename(app.config["IMAGE_NAME_LENGTH"]) + "." + upload.filename.split(".")[-1])
+
+            # The quality parameter compresses the image, saving space on the file system
+            image.save(os.path.join(app.config["IMAGE_FOLDER"], new_filename), quality=40, optimize=True)
+
+            image.close()
+
+            # Create a database row for the image
+            model = Photo(title=title, path=os.path.join(app.config["IMAGE_FOLDER"], secure_filename(new_filename)), votes=randint(0, 1000))
+            db.session.add(model)
+            db.session.commit()
+
             return jsonify({
-                "status": "Failure",
-                "message": "Invalid file extension"
+                "status": "Success"
             })
-
-        # Make sure a title is present
-        if "title" not in request.form.keys():
-            return jsonify({
-                "status": "Failure",
-                "message": "Title missing"
-            })
-        else:
-            title = request.form["title"]
-
-        # Open image for compressing
-        image = Image.open(upload)
-
-        # File to save the image to. The filename is randomly generated from the generateFilname function
-        # Eventually this will have to check for a collision with an already existing filename
-        new_filename = secure_filename(generateFilename(app.config["IMAGE_NAME_LENGTH"]) + "." + upload.filename.split(".")[-1])
-
-        # The quality parameter compresses the image, saving space on the file system
-        image.save(os.path.join(app.config["IMAGE_FOLDER"], new_filename), quality=40, optimize=True)
-
-        image.close()
-
-        # Create a database row for the image
-        model = Photo(title=title, path=os.path.join(app.config["IMAGE_FOLDER"], secure_filename(new_filename)), votes=randint(0, 1000))
-        db.session.add(model)
-        db.session.commit()
-
-        return jsonify({
-            "status": "Success"
-        })
 
     # Route to get all images sorted using reddit's hot algorithm
-    @app.route("/hot")
+    @app.route("/images/hot")
     def hot():
         page = 1
 
@@ -111,7 +134,7 @@ def create_app():
 
         # Page has 1 subtracted from it because if not, it would be offset by IMAGES_PER_PAGE on the 1st page, and 2 * IMAGES_PER_PAGE on the 2nd one
         # The offset should actually be 0 for the first and IMAGES_PER_PAGE for the 2nd
-        items = db.session.execute(
+        images = db.session.execute(
             "SELECT id, title, path, votes FROM photo ORDER BY LOG(ABS(votes) + 1) + (EXTRACT(EPOCH FROM created_on) / 300000) DESC OFFSET " +
             str(app.config["IMAGES_PER_PAGE"] * (page - 1)) + " LIMIT 20"
         )
@@ -120,7 +143,7 @@ def create_app():
 
         # For now, this returns the image path instead of the image itself
         # This could be properly implemented in 2 ways: Either return all the images now, or just have a route to get an image by id and load them one at a time on the front end
-        for row in items:
+        for row in images:
             results.append({
                 "id": row.id,
                 "title": row.title,

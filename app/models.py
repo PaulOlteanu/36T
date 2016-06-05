@@ -15,4 +15,4 @@ class Photo(db.Model):
         self.votes = votes
 
     def __repr__(self):
-        return '<Photo %r>' % self.title
+        return "<Photo ID: {}, Title: {}, Votes: {}, Creation_Date: {}>".format(self.id, self.title, self.votes, self.created_on)

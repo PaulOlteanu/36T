@@ -31,6 +31,5 @@ class TestConfig(Config):
     DEBUG = True
 
     SQLALCHEMY_DATABASE_URI = "postgresql://localhost/test"
-    SQLALCHEMY_ECHO = True
 
     ADMIN_PASSWORD = "Password"

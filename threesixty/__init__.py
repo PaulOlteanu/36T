@@ -1,9 +1,18 @@
+#! ../env/bin/python
+# -*- coding: utf-8 -*-
+
+__author__ = 'Paul Olteanu'
+__email__ = 'p.a.olteanu@gmail.com'
+__version__ = '1.0'
+
 from flask import Flask, request, jsonify
 from werkzeug.utils import secure_filename
 
 from random import randint
 from PIL import Image
 import os
+
+from .models import db, Photo
 
 
 def generateFilename(length):
@@ -17,16 +26,19 @@ def generateFilename(length):
     return filename
 
 
-def create_app():
-    app = Flask(__name__, instance_relative_config=True)
-    # This loads 36T/config.py as the default config
-    # Then loads 36T/instance/config.py 2nd
-    # Allows default settings in the 1st one and then further options based on the running environment
-    app.config.from_object("config")
-    app.config.from_pyfile("config.py")
+def create_app(object_name):
+    """
+    An flask application factory, as explained here: http://flask.pocoo.org/docs/patterns/appfactories/
 
-    # Must be imported here instead of at the top to be able to call init_app after creating the app
-    from .models import db, Photo
+    Arguments:
+        object_name: the python path of the config object, e.g. threesixty.settings.ProdConfig
+    """
+
+    app = Flask(__name__)
+
+    app.config.from_object(object_name)
+
+    # initialize SQLAlchemy
     db.init_app(app)
 
     # A basic route to test if the API is working

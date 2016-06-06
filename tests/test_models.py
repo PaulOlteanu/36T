@@ -1,5 +1,4 @@
-#! ../env/bin/python
-# -*- coding: utf-8 -*-
+#! ../venv/bin/python
 
 import pytest
 

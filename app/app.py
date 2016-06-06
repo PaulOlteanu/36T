@@ -1,5 +1,4 @@
 #! ../env/bin/python
-# -*- coding: utf-8 -*-
 
 __author__ = 'Paul Olteanu'
 __email__ = 'p.a.olteanu@gmail.com'
@@ -8,22 +7,12 @@ __version__ = '1.0'
 from flask import Flask, request, jsonify, make_response
 from werkzeug.utils import secure_filename
 
+from .libs import generateFilename
 from random import randint
 from PIL import Image
 import os
 
 from .models import db, Photo
-
-
-def generateFilename(length):
-    characters = list("01234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
-
-    filename = ""
-
-    for i in range(length):
-        filename += characters[randint(0, len(characters) - 1)]
-
-    return filename
 
 
 def create_app(object_name):

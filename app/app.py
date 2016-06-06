@@ -56,7 +56,7 @@ def create_app(object_name):
         # GET route. Returns all images, in order of id, which is also in order of oldest -> newest
         if request.method == "GET":
 
-            images = Photo.query.all()
+            images = Photo.query.order_by(Photo.created_on).all()
 
             results = []
 
@@ -207,6 +207,25 @@ def create_app(object_name):
         return jsonify({
             "status": "Success",
             "data": results
+        })
+
+    @app.route("/images/upvote/<int:image_id>", methods=["POST"])
+    def upvote(image_id):
+        photo = Photo.query.filter_by(id=image_id).first()
+
+        if (not photo):
+            return jsonify({
+                "status": "Failure",
+                "message": "Photo id does not exist"
+            })
+
+        photo.votes += 1
+
+        db.session.commit()
+
+        return jsonify({
+            "status": "Success",
+            "message": "Upvoted image"
         })
 
     @app.errorhandler(404)

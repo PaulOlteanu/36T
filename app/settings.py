@@ -6,7 +6,7 @@ db_file = tempfile.NamedTemporaryFile()
 
 class Config(object):
     SECRET_KEY = 'secret key'
-    IMAGE_FOLDER = os.path.join(basedir, "..", "images")
+    IMAGE_FOLDER = os.path.join(basedir, os.pardir, "images")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     IMAGE_NAME_LENGTH = 7
     IMAGES_PER_PAGE = 20

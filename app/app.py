@@ -141,6 +141,7 @@ def create_app(object_name):
                     "message": "Invalid page number"
                 })
 
+        # Images are sorted in reverse order by creation date
         images = Photo.query.order_by(Photo.created_on.desc()).offset(app.config["IMAGES_PER_PAGE"] * (page - 1)).limit(app.config["IMAGES_PER_PAGE"])
 
         results = []
@@ -209,10 +210,12 @@ def create_app(object_name):
             "data": results
         })
 
+    # Route to upvote an image
     @app.route("/images/upvote/<int:image_id>", methods=["POST"])
     def upvote(image_id):
         photo = Photo.query.filter_by(id=image_id).first()
 
+        # Make sure the image with the specefied id exists
         if (not photo):
             return jsonify({
                 "status": "Failure",
@@ -235,6 +238,7 @@ def create_app(object_name):
             "message": "Invalid route"
         })
 
+        # make_response needs to be used to be able to specify the status code
         return make_response((response, 404))
 
     @app.errorhandler(500)
@@ -246,6 +250,7 @@ def create_app(object_name):
             "message": "Server error. Contact an admin if this problem persists"
         })
 
+        # make_response needs to be used to be able to specify the status code
         return make_response((response, 500))
 
     return app

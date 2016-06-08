@@ -113,8 +113,8 @@ def create_app(object_name):
 
             # Create a database row for the image
             # TODO: Remove the random votes number, and also the argument from the model constructor. This is only there for ease of development
-            model = Photo(title=title, path=os.path.join(app.config["IMAGE_FOLDER"], secure_filename(new_filename)), votes=randint(0, 1000))
-            db.session.add(model)
+            photo = Photo(title=title, path=os.path.join(app.config["IMAGE_FOLDER"], secure_filename(new_filename)), votes=randint(0, 1000))
+            db.session.add(photo)
             db.session.commit()
 
             return jsonify({

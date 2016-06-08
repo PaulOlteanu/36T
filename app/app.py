@@ -70,26 +70,32 @@ def create_app(object_name):
             # Make sure the file exists
             # The "key" for it must be "file", otherwise it will not be accepted
             if "file" not in request.files:
-                return jsonify({
+                response = jsonify({
                     "status": "Failure",
                     "message": "File missing"
                 })
+
+                return make_response((response, 400))
 
             upload = request.files["file"]
 
             # Make sure the file extension is acceptable
             if upload.filename.split(".")[-1] not in ["png", "jpg", "bmp", "jpeg"]:
-                return jsonify({
+                response = jsonify({
                     "status": "Failure",
                     "message": "Invalid file extension"
                 })
 
+                return make_response((response, 400))
+
             # Make sure a title is present
             if "title" not in request.form.keys():
-                return jsonify({
+                response = jsonify({
                     "status": "Failure",
                     "message": "Title missing"
                 })
+
+                return make_response((response, 400))
             else:
                 title = request.form["title"]
 
@@ -100,8 +106,10 @@ def create_app(object_name):
             # Eventually this will have to check for a collision with an already existing filename
             new_filename = secure_filename(generateFilename(app.config["IMAGE_NAME_LENGTH"]) + "." + upload.filename.split(".")[-1])
 
-            # The quality parameter compresses the image, saving space on the file system
-            image.save(os.path.join(app.config["IMAGE_FOLDER"], new_filename), quality=40, optimize=True)
+            # Make sure not to fill the file system with test pictures
+            if app.config["ENV"] != "test":
+                # The quality parameter compresses the image, saving space on the file system
+                image.save(os.path.join(app.config["IMAGE_FOLDER"], new_filename), quality=40, optimize=True)
 
             image.close()
 

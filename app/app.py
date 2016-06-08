@@ -106,10 +106,8 @@ def create_app(object_name):
             # Eventually this will have to check for a collision with an already existing filename
             new_filename = secure_filename(generateFilename(app.config["IMAGE_NAME_LENGTH"]) + "." + upload.filename.split(".")[-1])
 
-            # Make sure not to fill the file system with test pictures
-            if app.config["ENV"] != "test":
-                # The quality parameter compresses the image, saving space on the file system
-                image.save(os.path.join(app.config["IMAGE_FOLDER"], new_filename), quality=40, optimize=True)
+            # The quality parameter compresses the image, saving space on the file system
+            image.save(os.path.join(app.config["IMAGE_FOLDER"], new_filename), quality=40, optimize=True)
 
             image.close()
 

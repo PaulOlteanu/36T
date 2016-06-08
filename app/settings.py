@@ -33,3 +33,5 @@ class TestConfig(Config):
     SQLALCHEMY_DATABASE_URI = "postgresql://localhost/test"
 
     ADMIN_PASSWORD = "Password"
+
+    IMAGE_FOLDER = IMAGE_FOLDER = os.path.join(basedir, os.pardir, "tests", "images")

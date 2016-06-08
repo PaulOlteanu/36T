@@ -133,10 +133,12 @@ def create_app(object_name):
             try:
                 page = int(request.args["page"])
             except ValueError:
-                return jsonify({
+                response = jsonify({
                     "status": "Failure",
                     "message": "Invalid page number"
                 })
+
+                return make_response((response, 400))
 
         # Images are sorted in reverse order by creation date
         images = Photo.query.order_by(Photo.created_on.desc()).offset(app.config["IMAGES_PER_PAGE"] * (page - 1)).limit(app.config["IMAGES_PER_PAGE"])
@@ -168,10 +170,12 @@ def create_app(object_name):
             try:
                 page = int(request.args["page"])
             except ValueError:
-                return jsonify({
+                response = jsonify({
                     "status": "Failure",
                     "message": "Invalid page number"
                 })
+
+                return make_response((response, 400))
 
         # Implementation of reddit's hot sorting algorithm in SQL
         # This is implemented in SQL because it's sorting in the database and limiting to the number of images per page is more efficient than getting the whole table
@@ -214,10 +218,12 @@ def create_app(object_name):
 
         # Make sure the image with the specefied id exists
         if (not photo):
-            return jsonify({
+            response = jsonify({
                 "status": "Failure",
                 "message": "Photo id does not exist"
             })
+
+            return make_response((response, 400))
 
         photo.votes += 1
 

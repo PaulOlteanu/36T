@@ -27,7 +27,7 @@ The server will run in debug mode by default. Current there is not a way to run 
 | POST | /images | Upload an image. Data must be form-encoded, with `file` as the name for the file upload, and `title` as the name for the title to save with the image |
 | GET | /images/new | List of images, from newest to oldest, in pages of 20 images. Argument page specifies which page, or defaults to 1 |
 | GET | /images/hot | List of all images sorted using a special algorithm based on age and number of upvotes, in pages of 20 images. Argument page specifies which page, or defaults to 1 |
-| POST | /images/upvote/<id> | Upvotes the image with the specified `id` |
+| POST | /images/upvote/`id` | Upvotes the image with the specified `id` |
 
 ## Directory structure
 

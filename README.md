@@ -2,13 +2,13 @@
 
 ## Getting the environment ready
 
-1. Clone the repository. `git clone https://github.com/PaulOlteanu/Shamrock.git`
+1. Clone the repository. `git clone https://github.com/PaulOlteanu/Shamrok.git`
 
 2. Get the virtualenv set up. This avoids having to install the libraries globally. This command will also install the required dependencies `make venv`
 
 3. Test it. These should all pass. `make test`
 
-4. Create the database. This should be a postgresql database, with no password with the name of "Shamrock". After installing postgres: `createdb Shamrock`
+4. Create the database. This should be a postgresql database, with no password with the name of "Shamrok". After installing postgres: `createdb Shamrok`
 
 5. Apply the schema to the database. `./manage.py db upgrade`
 

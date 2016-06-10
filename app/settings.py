@@ -14,14 +14,14 @@ class Config(object):
 
 class ProdConfig(Config):
     ENV = 'prod'
-    SQLALCHEMY_DATABASE_URI = "postgresql://localhost/Shamrock"
+    SQLALCHEMY_DATABASE_URI = "postgresql://localhost/Shamrok"
 
 
 class DevConfig(Config):
     ENV = 'dev'
     DEBUG = True
 
-    SQLALCHEMY_DATABASE_URI = "postgresql://localhost/Shamrock"
+    SQLALCHEMY_DATABASE_URI = "postgresql://localhost/Shamrok"
 
     ADMIN_PASSWORD = "Password"
 

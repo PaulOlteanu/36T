@@ -32,7 +32,7 @@ The server will run in debug mode by default. Current there is not a way to run 
 ## Directory structure
 
 * /app/: Code for the server itself
- * \__init__.py: Called when importing `app`. Also declares the app folder a package
+    * \__init__.py: Called when importing `app`. Also declares the app folder a package
     * app.py: Code for the server. Returns a flask app object
     * libs.py: Code not coupled to flask
     * models.py: Code containing the model definitions for the database

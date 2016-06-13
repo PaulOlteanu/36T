@@ -11,7 +11,7 @@ from .settings import ProdConfig
 from .libs import generateFilename
 from random import randint
 from PIL import Image
-import boto
+import bobo
 import os
 
 from .models import db, Photo
@@ -109,7 +109,7 @@ def create_app(object_name=ProdConfig):
             new_filename = secure_filename(generateFilename(app.config["IMAGE_NAME_LENGTH"]) + "." + upload.filename.split(".")[-1])
 
             if app.config["env"] == "prod":
-                conn = boto.connect_s3(app.config["S3_KEY"], app.config["S3_SECRET"])
+                conn = bobo.connect_s3(app.config["S3_KEY"], app.config["S3_SECRET"])
                 b = conn.get_bucket(app.config["S3_BUCKET"])
 
                 sml = b.new_key("/".join([app.config["S3_UPLOAD_DIRECTORY"], new_filename]))

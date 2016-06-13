@@ -7,6 +7,7 @@ __version__ = '1.0'
 from flask import Flask, request, jsonify, make_response
 from werkzeug.utils import secure_filename
 
+from .settings import ProdConfig
 from .libs import generateFilename
 from random import randint
 from PIL import Image
@@ -15,7 +16,7 @@ import os
 from .models import db, Photo
 
 
-def create_app(object_name):
+def create_app(object_name=ProdConfig):
     """
     An flask application factory, as explained here: http://flask.pocoo.org/docs/patterns/appfactories/
 

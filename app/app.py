@@ -4,13 +4,14 @@ __author__ = 'Paul Olteanu'
 __email__ = 'p.a.olteanu@gmail.com'
 __version__ = '1.0'
 
-from flask import Flask, request, jsonify, make_response
+from flask import Flask, request, jsonify, make_response, send_file
 from werkzeug.utils import secure_filename
 
 from .settings import ProdConfig
 from .libs import generateFilename
 from random import randint
 from PIL import Image
+from io import BytesIO
 import boto
 import os
 
@@ -55,7 +56,8 @@ def create_app(object_name=ProdConfig):
                 results.append({
                     "id": row.id,
                     "title": row.title,
-                    "path": row.path,
+                    "filename": row.filename,
+                    "mimetype": row.mimetype,
                     "votes": row.votes,
                     "creation_date": row.created_on
                 })
@@ -112,8 +114,16 @@ def create_app(object_name=ProdConfig):
                 conn = boto.connect_s3(app.config["S3_KEY"], app.config["S3_SECRET"])
                 b = conn.get_bucket(app.config["S3_BUCKET"])
 
+                s3_file = BytesIO()
+
+                image.save(s3_file, quality=40, optimize=True, format=upload.filename.split(".")[-1] if upload.filename.split(".")[-1].lower() != "jpg" else "jpeg")
+
+                s3_file.name = new_filename
+
+                s3_file.seek(0)
+
                 sml = b.new_key("/".join([app.config["S3_UPLOAD_DIRECTORY"], new_filename]))
-                sml.set_contents_from_string(image.data.read())
+                sml.set_contents_from_file(s3_file,  headers={'Content-Type': upload.mimetype})
                 sml.set_acl('public-read')
 
             else:
@@ -123,14 +133,45 @@ def create_app(object_name=ProdConfig):
             image.close()
 
             # Create a database row for the image
-            # TODO: Remove the random votes number, and also the argument from the model constructor. This is only there for ease of development
-            photo = Photo(title=title, path=os.path.join(app.config["IMAGE_FOLDER"], secure_filename(new_filename)), votes=randint(0, 1000))
+            photo = Photo(title=title, filename=secure_filename(new_filename), mimetype=upload.mimetype)
             db.session.add(photo)
             db.session.commit()
 
             return jsonify({
                 "status": "Success"
             })
+
+    @app.route("/images/<int:image_id>")
+    def get_image(image_id):
+        photo = Photo.query.filter_by(id=image_id).first()
+
+        # Make sure the image with the specefied id exists
+        if (not photo):
+            response = jsonify({
+                "status": "Failure",
+                "message": "Photo id does not exist"
+            })
+
+            return make_response((response, 400))
+
+        if (app.config["ENV"] == "prod"):
+            conn = boto.connect_s3(app.config["S3_KEY"], app.config["S3_SECRET"])
+            b = conn.get_bucket(app.config["S3_BUCKET"])
+
+            for i in dir(b):
+                print(i)
+
+            item = b.get_key("/".join([app.config["S3_UPLOAD_DIRECTORY"], photo.filename]))
+
+            item.open_read()
+
+            return send_file(item, mimetype=photo.mimetype)
+
+            item.close()
+
+        else:
+            return send_file(os.path.join(app.config["IMAGE_FOLDER"], photo.filename), mimetype=photo.mimetype)
+
 
     @app.route("/images/new")
     def new():
@@ -158,7 +199,8 @@ def create_app(object_name=ProdConfig):
             results.append({
                 "id": row.id,
                 "title": row.title,
-                "path": row.path,
+                "filename": row.filename,
+                "mimetype": row.mimetype,
                 "votes": row.votes,
                 "creation_date": row.created_on
             })
@@ -197,7 +239,7 @@ def create_app(object_name=ProdConfig):
         # The way the algorithm works requires an image to have 10 times as many points as one 12.5 hours newer to be ranked above it
         # While this could be moved to a constant, it is simpler to have it in the query as it's only used once, and using string concating is a bit of a hack when creating queries
         images = db.session.execute(
-            "SELECT photo.id, photo.title, photo.path, photo.votes, photo.created_on FROM photo " +
+            "SELECT photo.id, photo.title, photo.filename, photo.mimetype, photo.votes, photo.created_on FROM photo " +
             "ORDER BY ROUND(CAST(LOG(GREATEST(ABS(photo.votes), 1)) * SIGN(photo.votes) + DATE_PART('epoch', photo.created_on) / 45000.0 as NUMERIC), 7) DESC " +
             "OFFSET " + str(app.config["IMAGES_PER_PAGE"] * (page - 1)) + " LIMIT " + str(app.config["IMAGES_PER_PAGE"])
         )
@@ -210,7 +252,8 @@ def create_app(object_name=ProdConfig):
             results.append({
                 "id": row.id,
                 "title": row.title,
-                "path": row.path,
+                "filename": row.filename,
+                "mimetype": row.mimetype,
                 "votes": row.votes,
                 "creation_date": row.created_on
             })

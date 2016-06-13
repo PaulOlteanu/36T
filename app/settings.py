@@ -15,7 +15,7 @@ class Config(object):
 class ProdConfig(Config):
     ENV = 'prod'
     DEBUG = False
-    SQLALCHEMY_DATABASE_URI = os.environ.get("DB")
+    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
 
     S3_LOCATION = os.environ.get("S3_LOCATION")
     S3_KEY = os.environ.get("S3_KEY")

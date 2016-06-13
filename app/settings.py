@@ -17,6 +17,12 @@ class ProdConfig(Config):
     DEBUG = False
     SQLALCHEMY_DATABASE_URI = os.environ.get("DB")
 
+    S3_LOCATION = os.environ.get("S3_LOCATION")
+    S3_KEY = os.environ.get("S3_KEY")
+    S3_SECRET = os.environ.get("S3_SECRET")
+    S3_UPLOAD_DIRECTORY = os.environ.get("S3_UPLOAD_DIRECTORY")
+    S3_BUCKET = os.environ.get("S3_BUCKET")
+
 
 class DevConfig(Config):
     ENV = 'dev'

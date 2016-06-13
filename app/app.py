@@ -158,9 +158,6 @@ def create_app(object_name=ProdConfig):
             conn = boto.connect_s3(app.config["S3_KEY"], app.config["S3_SECRET"])
             b = conn.get_bucket(app.config["S3_BUCKET"])
 
-            for i in dir(b):
-                print(i)
-
             item = b.get_key("/".join([app.config["S3_UPLOAD_DIRECTORY"], photo.filename]))
 
             item.open_read()

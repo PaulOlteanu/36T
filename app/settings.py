@@ -14,7 +14,8 @@ class Config(object):
 
 class ProdConfig(Config):
     ENV = 'prod'
-    SQLALCHEMY_DATABASE_URI = "postgresql://localhost/Shamrok"
+    DEBUG = False
+    SQLALCHEMY_DATABASE_URI = os.environ.get("DB")
 
 
 class DevConfig(Config):

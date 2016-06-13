@@ -108,7 +108,7 @@ def create_app(object_name=ProdConfig):
             # Eventually this will have to check for a collision with an already existing filename
             new_filename = secure_filename(generateFilename(app.config["IMAGE_NAME_LENGTH"]) + "." + upload.filename.split(".")[-1])
 
-            if app.config["env"] == "prod":
+            if app.config["ENV"] == "prod":
                 conn = bobo.connect_s3(app.config["S3_KEY"], app.config["S3_SECRET"])
                 b = conn.get_bucket(app.config["S3_BUCKET"])
 

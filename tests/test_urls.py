@@ -121,7 +121,7 @@ class TestURLs:
         # HACK: Adding i to the path is bad, but there's no way around the unique constraint on the path column
         # Really, the path doesn't matter for this test though so it's not that bad
         for i in range(20):
-            db.session.add(Photo(title="Title", path=os.path.join(basedir, str(i) + "test.jpg")))
+            db.session.add(Photo(title="Title", filename=os.path.join(basedir, str(i) + "test.jpg"), mimetype="image/jpg"))
 
         db.session.commit()
 
@@ -151,7 +151,7 @@ class TestURLs:
 
         basedir = os.path.abspath(os.path.dirname(__file__))
 
-        photo = Photo(title="Title", path=os.path.join(basedir, "test.jpg"), votes=1)
+        photo = Photo(title="Title", filename=os.path.join(basedir, "test.jpg"), mimetype="image/jpg", votes=1)
         db.session.add(photo)
         db.session.commit()
 

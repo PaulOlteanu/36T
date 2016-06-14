@@ -14,7 +14,7 @@ class TestModels:
     def test_photo_save(self, testapp):
         """ Test saving the photo model to the database """
 
-        photo = Photo('Title', '/path')
+        photo = Photo(title='Title', filename='test.jpg', mimetype="images/jpg")
         db.session.add(photo)
         db.session.commit()
 
@@ -24,7 +24,7 @@ class TestModels:
     def test_photo_repr(self, testapp):
         """ Test the repr function returning the full representation """
 
-        photo = Photo("Title", "/path")
+        photo = Photo(title="Title", filename="test.jpg", mimetype="image/jpg")
 
         assert repr(photo) == "<Photo ID: {}, Title: {}, Votes: {}, Creation_Date: {}>".format(photo.id, photo.title, photo.votes, photo.created_on)
 
@@ -36,8 +36,8 @@ class TestModels:
     def test_duplicate_path_error(self, testapp):
         """ Test whether saving 2 models with the same path errors out """
 
-        photo1 = Photo("Title", "/path")
-        photo2 = Photo("Title", "/path")
+        photo1 = Photo(title="Title", filename="test.jpg", mimetype="image/jpg")
+        photo2 = Photo(title="Title", filename="test.jpg", mimetype="image/jpg")
 
         db.session.add(photo1)
         db.session.commit()

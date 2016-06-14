@@ -24,10 +24,11 @@ The server will run in debug mode by default. Current there is not a way to run 
 |:---:|:---:|:---:|
 | GET | / | API welcome |
 | GET | /images | List of all images in the order they were created, in pages of 20 images. Argument `page` specifies which page, or defaults to 1 |
+| GET | /images/`id` | Get the image with the specified `id` |
 | POST | /images | Upload an image. Data must be form-encoded, with `file` as the name for the file upload, and `title` as the name for the title to save with the image |
 | GET | /images/new | List of images, from newest to oldest, in pages of 20 images. Argument page specifies which page, or defaults to 1 |
 | GET | /images/hot | List of all images sorted using a special algorithm based on age and number of upvotes, in pages of 20 images. Argument page specifies which page, or defaults to 1 |
-| POST | /images/upvote/`id` | Upvotes the image with the specified `id` |
+| POST | /images/upvote/`id` | Upvote the image with the specified `id` |
 
 ## Directory structure
 
@@ -43,6 +44,7 @@ The server will run in debug mode by default. Current there is not a way to run 
 
 
 * /tests/: Various tests for the app
+    * \__init.py__: Declares the tests folder a package
     * conftest.py: Code for creating the test client
     * test_libs: Tests for lib functions
     * test_models: Tests for database functions
@@ -53,4 +55,8 @@ The server will run in debug mode by default. Current there is not a way to run 
 
 * manage.py: Runner for the server, and functions for creating the database, creating migrations, and running migrations
 
+* Procfile: Config file specifying the run command for Heroku
+
 * requirements.txt: All the prerequisites for running the application
+
+* runtime.txt: Specifies the version of python to use for Heroku

@@ -145,7 +145,7 @@ def create_app(object_name=ProdConfig):
     def get_image(image_id):
         photo = Photo.query.filter_by(id=image_id).first()
 
-        # Make sure the image with the specefied id exists
+        # Make sure the image with the specified id exists
         if (not photo):
             response = jsonify({
                 "status": "Failure",

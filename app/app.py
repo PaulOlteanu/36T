@@ -1,27 +1,28 @@
 #! ../env/bin/python
 
+from flask import Flask, request, jsonify, make_response, send_file
+from werkzeug.utils import secure_filename
+
+from .models import db, Photo
+from .settings import ProdConfig
+from .libs import generateFilename
+from io import BytesIO
+from PIL import Image
+import boto
+import os
+
+
 __author__ = 'Paul Olteanu'
 __email__ = 'p.a.olteanu@gmail.com'
 __version__ = '1.0'
 
-from flask import Flask, request, jsonify, make_response, send_file
-from werkzeug.utils import secure_filename
-
-from .settings import ProdConfig
-from .libs import generateFilename
-from random import randint
-from PIL import Image
-from io import BytesIO
-import boto
-import os
-
-from .models import db, Photo
 
 # Returns a flask app object
 # The config can be specified as an argument, or defaults to Prod
-
-
 def create_app(object_name=ProdConfig):
+    """ Returns a flask app object
+    The config can be specified as an argument, or defaults to Prod
+    """
 
     # Create the app
     app = Flask(__name__)
@@ -77,7 +78,7 @@ def create_app(object_name=ProdConfig):
             # Thee offset is done by multiplying page - 1 by the number of images on a page
             # Page has 1 subtracted from it because if not, it would be offset by IMAGES_PER_PAGE on the 1st page, and 2 * IMAGES_PER_PAGE on the 2nd one
             # The offset should actually be 0 for the first and IMAGES_PER_PAGE for the 2nd
-            if not "sort" in request.args:
+            if "sort" not in request.args:
 
                 # Default to sorting by creation date
                 images = Photo.query.order_by(Photo.created_on).offset(app.config["IMAGES_PER_PAGE"] * (page - 1)).limit(app.config["IMAGES_PER_PAGE"])
@@ -93,9 +94,8 @@ def create_app(object_name=ProdConfig):
 
                 # 45000 is a magic number in reddit's code too. It's the number of seconds in 12.5 hours
                 # The way the algorithm works requires an image to have 10 times as many points as one 12.5 hours newer to be ranked above it
-                # While this could be moved to a constant, it is simpler to have it in the
-                # query as it's only used once, and using string concating is a bit of a
-                # hack when creating queries
+                # While this could be moved to a constant, it is simpler to have it in the query as it's only used once,
+                # and using string concating is a bit of a hack when creating queries
                 images = db.session.execute(
                     "SELECT photo.id, photo.title, photo.filename, photo.mimetype, photo.votes, photo.created_on FROM photo " +
                     "ORDER BY ROUND(CAST(LOG(GREATEST(ABS(photo.votes), 1)) * SIGN(photo.votes) + DATE_PART('epoch', photo.created_on) / 45000.0 as NUMERIC), 7) DESC " +
@@ -193,7 +193,7 @@ def create_app(object_name=ProdConfig):
                 # The contents are set to the file from above
                 # The file is then made publically readable so that all users can view it
                 sml = b.new_key("/".join([app.config["S3_UPLOAD_DIRECTORY"], new_filename]))
-                sml.set_contents_from_file(s3_file,  headers={'Content-Type': upload.mimetype})
+                sml.set_contents_from_file(s3_file, headers={'Content-Type': upload.mimetype})
                 sml.set_acl('public-read')
 
             else:

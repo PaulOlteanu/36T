@@ -21,11 +21,9 @@
 | Request Type | Route | Description |
 |:---:|:---:|:---:|
 | GET | / | API welcome |
-| GET | /images | List of all images in the order they were created, in pages of 20 images. Argument `page` specifies which page, or defaults to 1 |
+| GET | /images | List of all images in the specified sort order, in pages of 20 images. Argument `page` specifies which page, or defaults to 1. Argument `sort` specifies the sorting technique. "new" for new -> old, "hot" for an algorithm based on votes and age, and a default of old -> new |
 | GET | /images/`id` | Get the image with the specified `id` |
 | POST | /images | Upload an image. Data must be form-encoded, with `file` as the name for the file upload, and `title` as the name for the title to save with the image |
-| GET | /images/new | List of images, from newest to oldest, in pages of 20 images. Argument page specifies which page, or defaults to 1 |
-| GET | /images/hot | List of all images sorted using a special algorithm based on age and number of upvotes, in pages of 20 images. Argument page specifies which page, or defaults to 1 |
 | POST | /images/upvote/`id` | Upvote the image with the specified `id` |
 
 ## Directory structure

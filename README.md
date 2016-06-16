@@ -16,8 +16,6 @@
 
 1. Run the server. `./manage.py runserver`
 
-The server will run in debug mode by default. Current there is not a way to run in prod mode.
-
 ## Description of all routes
 
 | Request Type | Route | Description |

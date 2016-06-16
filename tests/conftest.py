@@ -23,7 +23,8 @@ def testapp(request):
         db.drop_all()
 
         for f in os.listdir(os.path.join(os.path.abspath(os.path.dirname(__file__)), "images")):
-            os.remove(os.path.join(os.path.abspath(os.path.dirname(__file__)), "images", f))
+            if f != "test.jpg":
+                os.remove(os.path.join(os.path.abspath(os.path.dirname(__file__)), "images", f))
 
 
     request.addfinalizer(teardown)

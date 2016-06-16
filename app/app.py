@@ -19,6 +19,8 @@ from .models import db, Photo
 
 # Returns a flask app object
 # The config can be specified as an argument, or defaults to Prod
+
+
 def create_app(object_name=ProdConfig):
 
     # Create the app
@@ -91,7 +93,9 @@ def create_app(object_name=ProdConfig):
 
                 # 45000 is a magic number in reddit's code too. It's the number of seconds in 12.5 hours
                 # The way the algorithm works requires an image to have 10 times as many points as one 12.5 hours newer to be ranked above it
-                # While this could be moved to a constant, it is simpler to have it in the query as it's only used once, and using string concating is a bit of a hack when creating queries
+                # While this could be moved to a constant, it is simpler to have it in the
+                # query as it's only used once, and using string concating is a bit of a
+                # hack when creating queries
                 images = db.session.execute(
                     "SELECT photo.id, photo.title, photo.filename, photo.mimetype, photo.votes, photo.created_on FROM photo " +
                     "ORDER BY ROUND(CAST(LOG(GREATEST(ABS(photo.votes), 1)) * SIGN(photo.votes) + DATE_PART('epoch', photo.created_on) / 45000.0 as NUMERIC), 7) DESC " +
@@ -283,6 +287,8 @@ def create_app(object_name=ProdConfig):
 
     @app.errorhandler(500)
     def internal_error(error):
+
+        # Roll back the database to a valid state
         db.session.rollback()
 
         response = jsonify({

@@ -5,7 +5,7 @@ import os
 from flask import json
 from app.models import db, Photo
 
-create_user = True
+create_photo = True
 
 
 @pytest.mark.usefixtures("testapp")
@@ -94,7 +94,7 @@ class TestURLs:
 
         basedir = os.path.abspath(os.path.dirname(__file__))
 
-        with open(os.path.join(basedir, "test.txt")) as f:
+        with open(os.path.join(basedir, "test.jkl")) as f:
             rv = testapp.post("/images", data=dict(file=f))
 
         return_data = json.loads(rv.get_data())
@@ -103,9 +103,9 @@ class TestURLs:
         assert return_data["status"] == "Failure"
 
     def test_new_page_one(self, testapp):
-        """ Test if the first item in /images/new has the id of 1 """
+        """ Test if the last item in /images?sort=new has the id of 1 """
 
-        rv = testapp.get("/images/new?page=1")
+        rv = testapp.get("/images?sort=new&page=1")
 
         return_data = json.loads(rv.get_data())
 
@@ -114,7 +114,7 @@ class TestURLs:
         assert return_data["data"][0]["id"] == 1
 
     def test_new_other_pages(self, testapp):
-        """ Test if the first item in /images/new?page=2 has the id of 1 """
+        """ Test if the last item in /images?sort=new&page=2 has the id of 1 """
 
         basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -125,7 +125,7 @@ class TestURLs:
 
         db.session.commit()
 
-        rv = testapp.get("/images/new?page=2")
+        rv = testapp.get("/images?sort=new&page=2")
 
         return_data = json.loads(rv.get_data())
 
@@ -139,7 +139,7 @@ class TestURLs:
     def test_invalid_page_number_new(self, testapp):
         """ Test if an invalid page value errors out """
 
-        rv = testapp.get("/images/new?page=jkl")
+        rv = testapp.get("/images?sort=new&page=jkl")
 
         return_data = json.loads(rv.get_data())
 
@@ -155,7 +155,7 @@ class TestURLs:
         db.session.add(photo)
         db.session.commit()
 
-        rv = testapp.get("/images/hot?page=1")
+        rv = testapp.get("/images?sort=hot&page=1")
 
         return_data = json.loads(rv.get_data())
 
@@ -168,7 +168,17 @@ class TestURLs:
     def test_invalid_page_number_hot(self, testapp):
         """ Test if an invalid page value errors out """
 
-        rv = testapp.get("/images/hot?page=jkl")
+        rv = testapp.get("/images?sort=hot&page=jkl")
+
+        return_data = json.loads(rv.get_data())
+
+        assert rv.status_code == 400
+        assert return_data["status"] == "Failure"
+
+    def test_invalid_sort(self, testapp):
+        """ Test if an invalid sort option errors out """
+
+        rv = testapp.get("/images?sort=sdaf")
 
         return_data = json.loads(rv.get_data())
 
@@ -190,6 +200,26 @@ class TestURLs:
         """ Test if upvoting a nonexistant id errors out """
 
         rv = testapp.post("/images/upvote/2")
+
+        return_data = json.loads(rv.get_data())
+
+        assert rv.status_code == 400
+        assert return_data["status"] == "Failure"
+
+    def test_get_image(self, testapp):
+        """ Test getting a specific image """
+
+        basedir = os.path.abspath(os.path.dirname(__file__))
+
+        rv=testapp.get("/images/1")
+
+        with open(os.path.join(basedir, "images/test.jpg"), "rb") as image:
+            assert rv.get_data() == image.read()
+
+    def test_get_image_invalid_id(self, testapp):
+        """ Test if getting an id that doesn't exist errors out """
+
+        rv = testapp.get("/images/2")
 
         return_data = json.loads(rv.get_data())
 

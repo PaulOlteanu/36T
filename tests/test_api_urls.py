@@ -120,7 +120,7 @@ class TestURLs:
 
         # HACK: Adding i to the path is bad, but there's no way around the unique constraint on the path column
         # Really, the path doesn't matter for this test though so it's not that bad
-        for i in range(20):
+        for i in range(10):
             db.session.add(Photo(title="Title", filename=os.path.join(basedir, str(i) + "test.jpg"), mimetype="image/jpg"))
 
         db.session.commit()
@@ -132,7 +132,7 @@ class TestURLs:
         assert rv.status_code == 200
         assert return_data["status"] == "Success"
 
-        # The id should still be 1 because pages are 20 images, and it has 20 images before it
+        # The id should still be 1 because pages are 10 images, and it has 10 images before it
         # This means it'll be the first one on the 2nd page
         assert return_data["data"][0]["id"] == 1
 

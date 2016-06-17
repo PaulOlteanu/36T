@@ -1,0 +1,22 @@
+{% extends "base.html" %} {% block content %}
+
+<section class="header">
+    <h3>Upload</h3>
+</section>
+
+<div class="container">
+    <div class="main-section row">
+        <div class="offset-by-two two-thirds column" style="text-align:center">
+
+            <iframe style="display:none;" width="0" height="0" border="0" name="dummyframe" id="dummyframe"></iframe>
+
+            <form action="/api/images" method="post" enctype="multipart/form-data" target="dummyframe">
+                <input type="file" name="file" id="file">
+                <input type="text" name="title" id="title" placeholder="Enter a title" class="form-control" autocomplete="off" />
+                <input type="submit" name="upload" value="Upload Image" class="button-primary">
+            </form>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

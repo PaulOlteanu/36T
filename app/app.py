@@ -1,6 +1,6 @@
 #! ../env/bin/python
 
-from flask import Flask, request, jsonify, make_response, send_file
+from flask import Flask, request, jsonify, make_response, send_file, render_template, url_for
 from werkzeug.utils import secure_filename
 
 from .models import db, Photo
@@ -39,7 +39,77 @@ def create_app(object_name=ProdConfig):
 
     @app.route("/")
     def index():
-        return "HELLO"
+        return render_template("index.html")
+
+    @app.route("/images")
+    def images():
+
+        # Defaults to page 1
+        page = 1
+
+        # Checks if there's a page argument, and makes sure it's valid
+        if "page" in request.args.keys():
+            try:
+                page = int(request.args["page"])
+            except ValueError:
+                response = jsonify({
+                    "status": "Failure",
+                    "message": "Invalid page number"
+                })
+
+                # make_response needs to be used to be able to specify the status code
+                return make_response((response, 400))
+
+        # The offset needs to be page - 1 because if not, it would be offset by IMAGES_PER_PAGE on the 1st page, and 2 * IMAGES_PER_PAGE on the 2nd one
+        # The offset should actually be 0 for the 1st page and IMAGES_PER_PAGE for the 2nd
+        page -= 1
+
+        if page < 0:
+            page = 0
+
+        # Checks if there's a sort argument, and makes sure it's valid
+        if "sort" in request.args.keys() and request.args["sort"].lower() != "old" and request.args["sort"].lower() != "new" and request.args["sort"].lower() != "hot":
+            response = jsonify({
+                "status": "Failure",
+                "message": "Invalid sort method"
+            })
+
+            # make_response needs to be used to be able to specify the status code
+            return make_response((response, 400))
+
+        if "sort" not in request.args or request.args["sort"].lower() == "old":
+
+            # Default to sorting by creation date
+            images = get_images_sort_old(page, app.config["IMAGES_PER_PAGE"])
+            sort = "old"
+        elif request.args["sort"].lower() == "new":
+
+            # Sort by reverse creation date, so new -> old
+            images = get_images_sort_new(page, app.config["IMAGES_PER_PAGE"])
+            sort = "new"
+        else:
+
+            # Sort by the hot sort algorithm
+            images = get_images_sort_hot(page, app.config["IMAGES_PER_PAGE"])
+            sort = "hot"
+
+        results = []
+
+        # Loop through images and create the data to render the template with
+        for image in images:
+            results.append({
+                "id": image.id,
+                "title": image.title,
+                "image_url": url_for("api_return_image", image_id=image.id, _external=True),
+                "votes": image.votes,
+            })
+
+        # Page is increased by one because it becomes decremented by one after the submission
+        return render_template("images.html", images=results, sort=sort, header=sort.capitalize(), page=page + 1)
+
+    @app.route("/upload")
+    def upload():
+        return render_template("upload.html")
 
     # API ROUTES ===================================================================================================================================================================
 
@@ -53,10 +123,10 @@ def create_app(object_name=ProdConfig):
 
     # Images route. Allows users to get all images, or to upload an image
     @app.route("/api/images", methods=["GET", "POST"])
-    def images():
+    def api_images():
 
         # GET route. Returns all images sorted by the specified method, or defaults to oldest -> newest
-        # Split into pages of app.config["IMAGES_PER_PAGE"], which is usually 20
+        # Split into pages of app.config["IMAGES_PER_PAGE"], which is usually 10
         if request.method == "GET":
 
             # Defaults to page 1
@@ -79,8 +149,11 @@ def create_app(object_name=ProdConfig):
             # The offset should actually be 0 for the 1st page and IMAGES_PER_PAGE for the 2nd
             page -= 1
 
+            if page < 0:
+                page = 0
+
             # Checks if there's a sort argument, and makes sure it's valid
-            if "sort" in request.args.keys() and request.args["sort"] != "new" and request.args["sort"] != "hot":
+            if "sort" in request.args.keys() and request.args["sort"].lower() != "new" and request.args["sort"].lower() != "hot":
                 response = jsonify({
                     "status": "Failure",
                     "message": "Invalid sort method"
@@ -93,7 +166,7 @@ def create_app(object_name=ProdConfig):
 
                 # Default to sorting by creation date
                 images = get_images_sort_old(page, app.config["IMAGES_PER_PAGE"])
-            elif request.args["sort"] == "new":
+            elif request.args["sort"].lower() == "new":
 
                 # Sort by reverse creation date, so new -> old
                 images = get_images_sort_new(page, app.config["IMAGES_PER_PAGE"])
@@ -212,7 +285,7 @@ def create_app(object_name=ProdConfig):
             })
 
     @app.route("/api/images/<int:image_id>")
-    def get_image(image_id):
+    def api_return_image(image_id):
         photo = Photo.query.filter_by(id=image_id).first()
 
         # Make sure the image with the specified id exists
@@ -251,7 +324,7 @@ def create_app(object_name=ProdConfig):
 
     # Route to upvote an image
     @app.route("/api/images/upvote/<int:image_id>", methods=["POST"])
-    def upvote(image_id):
+    def api_upvote(image_id):
         photo = Photo.query.filter_by(id=image_id).first()
 
         # Make sure the image with the specefied id exists

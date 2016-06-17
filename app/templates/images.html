@@ -1,0 +1,51 @@
+{% extends "base.html" %} {% block content %}
+
+<section class="header">
+    <h3>{{ header }}</h3>
+</section>
+
+<div class="container">
+    <div class="main-section row">
+        <div class="offset-by-two two-thirds column" style="text-align:center">
+
+            <a href="/images?sort={{ sort }}&page={{ page - 1}}"><button>Previous Page</button></a>
+            <a href="/images?sort={{ sort }}&page={{ page + 1}}"><button>Next Page</button></a>
+
+            <table style="margin-right: auto; margin-left: auto;">
+                <tr>
+                    <th style="text-align:center;">Title</th>
+                    <th style="text-align:center;">Votes</th>
+                    <th style="text-align:center;">Image</th>
+                    <th style="text-align:center;">Upvote</th>
+                </tr>
+
+                {% for image in images %}
+                <tr>
+                    <td style="text-align:center"> {{ image.title }} </td>
+                    <td style="text-align:center"> {{ image.votes }} </td>
+                    <td style="text-align:center">
+                        <div style="width: 400px; height: 200px; top: 0; bottom: 0; left: 0; right: 0; background-image: url({{ image.image_url }}); background-repeat: no-repeat; background-position: center; background-size: contain">
+                        </div>
+                    </td>
+                    <td>
+                        <a href="javascript:;" id="upvote{{ image.id }}"><button>+1</button></a>
+                        <script type="text/javascript">
+                            document.getElementById('upvote{{ image.id }}').addEventListener("click", function(event) {
+                                (function(event) {
+                                    var request = new XMLHttpRequest();
+                                    request.open('POST', '/api/images/upvote/{{ image.id }}', true);
+                                    request.send();
+                                }).call(document.getElementById('upvote'), event);
+                            });
+                        </script>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+
+            <a href="/images?sort={{ sort }}&page={{ page - 1}}"><button>Previous Page</button></a>
+            <a href="/images?sort={{ sort }}&page={{ page + 1}}"><button>Next Page</button></a>
+        </div>
+    </div>
+</div>
+{% endblock %}

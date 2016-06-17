@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Shamrok</title>
+    <meta name="description" content="A site for sharing images">
+    <meta name="author" content="Paul Olteanu">
+
+    <!-- Mobile Specific Metas -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- CSS -->
+    <link rel="stylesheet" type=text/css href="{{ url_for('static', filename='css/normalize.css') }}">
+    <link rel="stylesheet" type=text/css href="{{ url_for('static', filename='css/skeleton.css') }}">
+    <link rel="stylesheet" type=text/css href="{{ url_for('static', filename='css/custom.css') }}">
+
+</head>
+
+<body>
+
+    <section class="header">
+        <h1>Shamrok</h1>
+    </section>
+    <div class="navbar-spacer"></div>
+
+    <nav class="navbar">
+        <div class="container">
+            <ul class="navbar-list">
+                <li class="navbar-item"><a class="navbar-link" href="/">Home</a></li>
+                <li class="navbar-item"><a class="navbar-link" href="/images?sort=new">New</a></li>
+                <li class="navbar-item"><a class="navbar-link" href="/images?sort=hot">Hot</a></li>
+                <li class="navbar-item"><a class="navbar-link" href="/upload">Upload</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    {% block content %} {% endblock %}
+
+</body>
+
+</html>

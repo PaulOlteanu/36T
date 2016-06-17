@@ -348,6 +348,9 @@ def create_app(object_name=ProdConfig):
 
     @app.route("/api/admin/delete/<int:image_id>", methods=["POST"])
     def delete_photo(image_id):
+
+        print("HERE")
+
         photo = Photo.query.filter_by(id=image_id).first()
 
         # Make sure the image with the specefied id exists

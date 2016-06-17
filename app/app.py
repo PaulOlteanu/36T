@@ -346,6 +346,38 @@ def create_app(object_name=ProdConfig):
             "message": "Upvoted image"
         })
 
+    @app.route("/api/admin/delete/<int:image_id>", methods=["POST"])
+    def delete_photo(image_id):
+        photo = Photo.query.filter_by(id=image_id).first()
+
+        # Make sure the image with the specefied id exists
+        if not photo:
+            response = jsonify({
+                "status": "Failure",
+                "message": "Photo id does not exist"
+            })
+
+            # make_response needs to be used to be able to specify the status code
+            return make_response((response, 400))
+
+        if "password" not in request.args or request.args["password"] != app.config["ADMIN_PASSWORD"]:
+            response = jsonify({
+                "status": "Failure",
+                "message": "Invalid password"
+            })
+
+            # make_response needs to be used to be able to specify the status code
+            return make_response((response, 400))
+
+        # Upvote the image and save it to the database
+        db.session.delete(photo)
+        db.session.commit()
+
+        return jsonify({
+            "status": "Success",
+            "message": "Deleted image"
+        })
+
     # Error handling routes
     # One for invalid routes, and one for server errors
     @app.errorhandler(404)

@@ -23,6 +23,8 @@ class ProdConfig(Config):
     S3_UPLOAD_DIRECTORY = os.environ.get("S3_UPLOAD_DIRECTORY")
     S3_BUCKET = os.environ.get("S3_BUCKET")
 
+    ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD")
+
 
 class DevConfig(Config):
     ENV = 'dev'

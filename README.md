@@ -20,18 +20,23 @@
 
 | Request Type | Route | Description |
 |:---:|:---:|:---:|
-| GET | / | API welcome |
-| GET | /images | List of all images in the specified sort order, in pages of 20 images. Argument `page` specifies which page, or defaults to 1. Argument `sort` specifies the sorting technique. "new" for new -> old, "hot" for an algorithm based on votes and age, and a default of old -> new |
-| POST | /images | Upload an image. Data must be form-encoded, with `file` as the name for the file upload, and `title` as the name for the title to save with the image |
-| GET | /images/`id` | Get the image with the specified `id` |
-| POST | /images/upvote/`id` | Upvote the image with the specified `id` |
+| GET | / | Home page |
+| GET | /images | Page listing all images in the specified sort order, in pages of 20 images. Argument `page` specifies which page, or defaults to 1. Argument `sort` specifies the sorting technique. "new" for new -> old, "hot" for an algorithm based on votes and age, and a default of old -> new
+| GET | /upload | Page to upload an image |
+| GET | /api | API welcome |
+| GET | /api/images | JSON list of all images in the specified sort order, in pages of 20 images. Argument `page` specifies which page, or defaults to 1. Argument `sort` specifies the sorting technique. "new" for new -> old, "hot" for an algorithm based on votes and age, and a default of old -> new |
+| POST | /api/images | Upload an image. Data must be form-encoded, with `file` as the name for the file upload, and `title` as the name for the title to save with the image |
+| GET | /api/images/`id` | Get the image with the specified `id` |
+| POST | /api/images/upvote/`id` | Upvote the image with the specified `id` |
 
 ## Directory structure
 
 * /app/: Code for the server itself
+    * static/: CSS and JS files
+    * templates/: HTML files
     * \__init__.py: Called when importing `app`. Also declares the app folder a package
     * app.py: Code for the server. Returns a flask app object
-    * libs.py: Code not coupled to flask
+    * lib.py: Code for generating filenames, and for functions used in both the API, and the HTML rendering
     * models.py: Code containing the model definitions for the database
     * settings.py: The config settings for various environments
 
@@ -42,9 +47,9 @@
 * /tests/: Various tests for the app
     * \__init.py__: Declares the tests folder a package
     * conftest.py: Code for creating the test client
+    * test_api_urls: Tests for api routes using HTTP requests
     * test_libs: Tests for lib functions
     * test_models: Tests for database functions
-    * test_urls: Tests for app routes using HTTP requests
 
 
 * Makefile: Helpers for creating a venv, installing dependencies, and testing

@@ -24,13 +24,13 @@ class TestURLs:
     def test_home(self, testapp):
         """ Tests if the index route loads """
 
-        rv = testapp.get("/")
+        rv = testapp.get("/api")
         assert rv.status_code == 200
 
     def test_get_images_status(self, testapp):
         """ Tests if image GET route loads """
 
-        rv = testapp.get("/images")
+        rv = testapp.get("/api/images")
 
         return_data = json.loads(rv.get_data())
 
@@ -40,7 +40,7 @@ class TestURLs:
     def test_get_images_data(self, testapp):
         """ Tests if image GET route returns images """
 
-        rv = testapp.get("/images")
+        rv = testapp.get("/api/images")
 
         return_data = json.loads(rv.get_data())
 
@@ -55,7 +55,7 @@ class TestURLs:
         basedir = os.path.abspath(os.path.dirname(__file__))
 
         with open(os.path.join(basedir, "test.jpg"), "rb") as image:
-            rv = testapp.post("/images", data=dict(title="HLH", file=image))
+            rv = testapp.post("/api/images", data=dict(title="HLH", file=image))
 
         return_data = json.loads(rv.get_data())
 
@@ -69,7 +69,7 @@ class TestURLs:
     def test_missing_file_error(self, testapp):
         """ Tests if not including a file errors out """
 
-        rv = testapp.post("/images", data=dict(title="HLH",))
+        rv = testapp.post("/api/images", data=dict(title="HLH",))
 
         return_data = json.loads(rv.get_data())
 
@@ -82,7 +82,7 @@ class TestURLs:
         basedir = os.path.abspath(os.path.dirname(__file__))
 
         with open(os.path.join(basedir, "test.jpg"), "rb") as image:
-            rv = testapp.post("/images", data=dict(file=image))
+            rv = testapp.post("/api/images", data=dict(file=image))
 
         return_data = json.loads(rv.get_data())
 
@@ -95,7 +95,7 @@ class TestURLs:
         basedir = os.path.abspath(os.path.dirname(__file__))
 
         with open(os.path.join(basedir, "test.jkl")) as f:
-            rv = testapp.post("/images", data=dict(file=f))
+            rv = testapp.post("/api/images", data=dict(file=f))
 
         return_data = json.loads(rv.get_data())
 
@@ -105,7 +105,7 @@ class TestURLs:
     def test_new_page_one(self, testapp):
         """ Test if the last item in /images?sort=new has the id of 1 """
 
-        rv = testapp.get("/images?sort=new&page=1")
+        rv = testapp.get("/api/images?sort=new&page=1")
 
         return_data = json.loads(rv.get_data())
 
@@ -125,7 +125,7 @@ class TestURLs:
 
         db.session.commit()
 
-        rv = testapp.get("/images?sort=new&page=2")
+        rv = testapp.get("/api/images?sort=new&page=2")
 
         return_data = json.loads(rv.get_data())
 
@@ -139,7 +139,7 @@ class TestURLs:
     def test_invalid_page_number_new(self, testapp):
         """ Test if an invalid page value errors out """
 
-        rv = testapp.get("/images?sort=new&page=jkl")
+        rv = testapp.get("/api/images?sort=new&page=jkl")
 
         return_data = json.loads(rv.get_data())
 
@@ -155,7 +155,7 @@ class TestURLs:
         db.session.add(photo)
         db.session.commit()
 
-        rv = testapp.get("/images?sort=hot&page=1")
+        rv = testapp.get("/api/images?sort=hot&page=1")
 
         return_data = json.loads(rv.get_data())
 
@@ -168,7 +168,7 @@ class TestURLs:
     def test_invalid_page_number_hot(self, testapp):
         """ Test if an invalid page value errors out """
 
-        rv = testapp.get("/images?sort=hot&page=jkl")
+        rv = testapp.get("/api/images?sort=hot&page=jkl")
 
         return_data = json.loads(rv.get_data())
 
@@ -178,7 +178,7 @@ class TestURLs:
     def test_invalid_sort(self, testapp):
         """ Test if an invalid sort option errors out """
 
-        rv = testapp.get("/images?sort=sdaf")
+        rv = testapp.get("/api/images?sort=sdaf")
 
         return_data = json.loads(rv.get_data())
 
@@ -190,7 +190,7 @@ class TestURLs:
 
         votesPrev = Photo.query.filter_by(id=1).first().votes
 
-        testapp.post("/images/upvote/1")
+        testapp.post("/api/images/upvote/1")
 
         votesNew = Photo.query.filter_by(id=1).first().votes
 
@@ -199,7 +199,7 @@ class TestURLs:
     def test_nonexistant_id_upvote(self, testapp):
         """ Test if upvoting a nonexistant id errors out """
 
-        rv = testapp.post("/images/upvote/2")
+        rv = testapp.post("/api/images/upvote/2")
 
         return_data = json.loads(rv.get_data())
 
@@ -211,7 +211,7 @@ class TestURLs:
 
         basedir = os.path.abspath(os.path.dirname(__file__))
 
-        rv=testapp.get("/images/1")
+        rv = testapp.get("/api/images/1")
 
         with open(os.path.join(basedir, "images/test.jpg"), "rb") as image:
             assert rv.get_data() == image.read()
@@ -219,7 +219,7 @@ class TestURLs:
     def test_get_image_invalid_id(self, testapp):
         """ Test if getting an id that doesn't exist errors out """
 
-        rv = testapp.get("/images/2")
+        rv = testapp.get("/api/images/2")
 
         return_data = json.loads(rv.get_data())
 

@@ -2,7 +2,7 @@
 
 import pytest
 
-from app.libs import generateFilename
+from app.lib import generate_filename
 
 create_photo = False
 
@@ -13,4 +13,4 @@ class TestLibs:
     def test_random_name_length(self, testapp):
         """ Test random name generator is correct length """
 
-        assert len(generateFilename(5)) == 5
+        assert len(generate_filename(5)) == 5

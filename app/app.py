@@ -5,7 +5,7 @@ from werkzeug.utils import secure_filename
 
 from .models import db, Photo
 from .settings import ProdConfig
-from .libs import generateFilename
+from .lib import generate_filename, get_images_sort_old, get_images_sort_new, get_images_sort_hot
 from io import BytesIO
 from PIL import Image
 import boto
@@ -35,9 +35,17 @@ def create_app(object_name=ProdConfig):
     # Initialize the database helper
     db.init_app(app)
 
+    # TEMPLATE ROUTES ==============================================================================================================================================================
+
+    @app.route("/")
+    def index():
+        return "HELLO"
+
+    # API ROUTES ===================================================================================================================================================================
+
     # A basic route to test if the API is working
     @app.route("/api")
-    def index():
+    def api_index():
         return jsonify({
             "status": "Success",
             "message": "Welcome to the API! For specs on the routes, check the readme at https://github.com/PaulOlteanu/Shamrok"
@@ -67,6 +75,10 @@ def create_app(object_name=ProdConfig):
                     # make_response needs to be used to be able to specify the status code
                     return make_response((response, 400))
 
+            # The offset needs to be page - 1 because if not, it would be offset by IMAGES_PER_PAGE on the 1st page, and 2 * IMAGES_PER_PAGE on the 2nd one
+            # The offset should actually be 0 for the 1st page and IMAGES_PER_PAGE for the 2nd
+            page -= 1
+
             # Checks if there's a sort argument, and makes sure it's valid
             if "sort" in request.args.keys() and request.args["sort"] != "new" and request.args["sort"] != "hot":
                 response = jsonify({
@@ -77,32 +89,18 @@ def create_app(object_name=ProdConfig):
                 # make_response needs to be used to be able to specify the status code
                 return make_response((response, 400))
 
-            # Thee offset is done by multiplying page - 1 by the number of images on a page
-            # Page has 1 subtracted from it because if not, it would be offset by IMAGES_PER_PAGE on the 1st page, and 2 * IMAGES_PER_PAGE on the 2nd one
-            # The offset should actually be 0 for the first and IMAGES_PER_PAGE for the 2nd
             if "sort" not in request.args:
 
                 # Default to sorting by creation date
-                images = Photo.query.order_by(Photo.created_on).offset(app.config["IMAGES_PER_PAGE"] * (page - 1)).limit(app.config["IMAGES_PER_PAGE"])
+                images = get_images_sort_old(page, app.config["IMAGES_PER_PAGE"])
             elif request.args["sort"] == "new":
 
                 # Sort by reverse creation date, so new -> old
-                images = Photo.query.order_by(Photo.created_on.desc()).offset(app.config["IMAGES_PER_PAGE"] * (page - 1)).limit(app.config["IMAGES_PER_PAGE"])
+                images = get_images_sort_new(page, app.config["IMAGES_PER_PAGE"])
             else:
 
-                # Implementation of reddit's hot sorting algorithm in SQL
-                # This is implemented in SQL because it's sorting in the database and limiting to the number of images per page is more efficient than getting the whole table
-                # The number of images per page is set in the config
-
-                # 45000 is a magic number in reddit's code too. It's the number of seconds in 12.5 hours
-                # The way the algorithm works requires an image to have 10 times as many points as one 12.5 hours newer to be ranked above it
-                # While this could be moved to a constant, it is simpler to have it in the query as it's only used once,
-                # and using string concating is a bit of a hack when creating queries
-                images = db.session.execute(
-                    "SELECT photo.id, photo.title, photo.filename, photo.mimetype, photo.votes, photo.created_on FROM photo " +
-                    "ORDER BY ROUND(CAST(LOG(GREATEST(ABS(photo.votes), 1)) * SIGN(photo.votes) + DATE_PART('epoch', photo.created_on) / 45000.0 as NUMERIC), 7) DESC " +
-                    "OFFSET " + str(app.config["IMAGES_PER_PAGE"] * (page - 1)) + " LIMIT " + str(app.config["IMAGES_PER_PAGE"])
-                )
+                # Sort by the hot sort algorithm
+                images = get_images_sort_hot(page, app.config["IMAGES_PER_PAGE"])
 
             results = []
 
@@ -164,9 +162,9 @@ def create_app(object_name=ProdConfig):
             # Open image for compressing
             image = Image.open(upload)
 
-            # File to save the image to. The filename is randomly generated from the generateFilname function
+            # File to save the image to. The filename is randomly generated from the generate_filname function
             # TODO: Check for a collision with an already existing filename
-            new_filename = secure_filename(generateFilename(app.config["IMAGE_NAME_LENGTH"]) + "." + upload.filename.split(".")[-1])
+            new_filename = secure_filename(generate_filename(app.config["IMAGE_NAME_LENGTH"]) + "." + upload.filename.split(".")[-1])
 
             # Prod connects to Amazon S3
             if app.config["ENV"] == "prod":

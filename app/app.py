@@ -30,6 +30,8 @@ def create_app(object_name=ProdConfig):
     # Set the app config to the speficied one
     app.config.from_object(object_name)
 
+    app.url_map.strict_slashes = False
+
     # Initialize the database helper
     db.init_app(app)
 

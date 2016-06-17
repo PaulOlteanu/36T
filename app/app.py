@@ -346,7 +346,7 @@ def create_app(object_name=ProdConfig):
             "message": "Upvoted image"
         })
 
-    @app.route("/api/admin/delete/<int:image_id>", methods=["POST"])
+    @app.route("/api/admin/delete/<int:image_id>", methods=["GET"])
     def delete_photo(image_id):
 
         print("HERE")

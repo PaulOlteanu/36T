@@ -236,7 +236,7 @@ def create_app(object_name=ProdConfig):
             image = Image.open(upload)
 
             # File to save the image to. The filename is randomly generated from the generate_filname function
-            # TODO: Check for a collision with an already existing filename
+            # TODO: Check for a collision with an already existing filename. This is really not that urgent as the chances of it happening are astronomical
             new_filename = secure_filename(generate_filename(app.config["IMAGE_NAME_LENGTH"]) + "." + upload.filename.split(".")[-1])
 
             # Prod connects to Amazon S3

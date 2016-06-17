@@ -36,7 +36,7 @@ def create_app(object_name=ProdConfig):
     db.init_app(app)
 
     # A basic route to test if the API is working
-    @app.route("/")
+    @app.route("/api")
     def index():
         return jsonify({
             "status": "Success",
@@ -44,7 +44,7 @@ def create_app(object_name=ProdConfig):
         })
 
     # Images route. Allows users to get all images, or to upload an image
-    @app.route("/images", methods=["GET", "POST"])
+    @app.route("/api/images", methods=["GET", "POST"])
     def images():
 
         # GET route. Returns all images sorted by the specified method, or defaults to oldest -> newest
@@ -213,7 +213,7 @@ def create_app(object_name=ProdConfig):
                 "status": "Success"
             })
 
-    @app.route("/images/<int:image_id>")
+    @app.route("/api/images/<int:image_id>")
     def get_image(image_id):
         photo = Photo.query.filter_by(id=image_id).first()
 
@@ -252,7 +252,7 @@ def create_app(object_name=ProdConfig):
             return send_file(os.path.join(app.config["IMAGE_FOLDER"], photo.filename), mimetype=photo.mimetype)
 
     # Route to upvote an image
-    @app.route("/images/upvote/<int:image_id>", methods=["POST"])
+    @app.route("/api/images/upvote/<int:image_id>", methods=["POST"])
     def upvote(image_id):
         photo = Photo.query.filter_by(id=image_id).first()
 

@@ -9,7 +9,7 @@ class Config(object):
     IMAGE_FOLDER = os.path.join(basedir, os.pardir, "images")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     IMAGE_NAME_LENGTH = 7
-    IMAGES_PER_PAGE = 20
+    IMAGES_PER_PAGE = 10
 
 
 class ProdConfig(Config):

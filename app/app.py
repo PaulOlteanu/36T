@@ -253,7 +253,7 @@ def create_app(object_name=ProdConfig):
                 # Save the image and compress it thanks to the quality and optimize arguments
                 # The format is normally set to the exptension of the uploaded file, but the correct format for .jpg is jpeg
                 # This is checked for and set to jpeg if the file extension is .jpg
-                image.save(s3_file, quality=40, optimize=True, format="jpeg" if upload.filename.split(".")[-1].lower() != "jpg" else upload.filename.split(".")[-1])
+                image.save(s3_file, quality=40, optimize=True, format="jpeg" if upload.filename.split(".")[-1].lower() == "jpg" else upload.filename.split(".")[-1])
 
                 # Set the file name of the s3 file as it's not set from image.save
                 s3_file.name = new_filename
